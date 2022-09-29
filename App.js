@@ -104,11 +104,23 @@ app.patch('/tasklists/:tasklistID/tasks/:taskID',(req,res)=>{
 
 //Delete Task API
 app.delete('/tasklists/:tasklistID',(req,res)=>{
-    let ID=req.params.tasklistID
-    TaskList.findOneAndDelete({ _id:ID})
+    let ID=req.params.tasklistID;
+
+    const deleteAlltasks= (taskl)=>{
+        Task.deleteMany({_tasklistId:ID})
+        .then(()=>{return taskl})
+        .catch((error)=>{
+            console.log("ERROR:",error);
+            res.status(500);
+        })
+    }
+
+
+    const responseTasklist= TaskList.findOneAndDelete({ _id:ID})
     .then((taskl)=>{
-        res.status(200).send(taskl);
-        console.log(ID,"Has been deleted!")
+        deleteAlltasks(taskl);
+        res.status(200).send(responseTasklist);
+
     })
     .catch((error)=>{
         console.log("ERROR:",error);
