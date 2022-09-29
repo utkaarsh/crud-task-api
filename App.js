@@ -1,4 +1,5 @@
 const express=require('express');
+const Task = require('./database/models/task');
 const app=express();
 const TaskSchema=require('./database/models/task');
 const TaskList = require('./database/models/taskList');
@@ -87,6 +88,19 @@ app.patch('/tasklists/:tasklistID',(req,res)=>{
     })
 })
 
+//Update a Specific Task from Tasklist
+app.patch('/tasklists/:tasklistID/tasks/:taskID',(req,res)=>{
+    let ID=req.params.tasklistID
+    Task.findOneAndUpdate({ _id:req.params.taskID,_tasklistId:ID},{ $set:req.body})
+    .then((task)=>{
+        res.status(200).send(task);
+        console.log("The task has been updated successfully!")
+    })
+    .catch((error)=>{
+        console.log("ERROR:",error);
+        res.status(500);
+    })
+})
 
 //Delete Task API
 app.delete('/tasklists/:tasklistID',(req,res)=>{
@@ -101,6 +115,72 @@ app.delete('/tasklists/:tasklistID',(req,res)=>{
         res.status(500);
     })
 })
+
+//Delete Specific Task from Tasklist
+app.delete('/tasklists/:tasklistID/tasks/:taskID',(req,res)=>{
+    let ID=req.params.tasklistID
+    Task.findByIdAndDelete({_id:req.params.taskID})
+    .then((taskl)=>{
+        res.status(200).send(taskl);
+        console.log("The Task has been deleted!")
+    })
+    .catch((error)=>{
+        console.log("ERROR:",error);
+        res.status(500);
+    })
+})
+
+
+/* CRUD operation for task, a task shoild always belong to a tasklist  */
+
+//Create a Task inside a particular tasakfield
+
+app.post('/tasklists/:tasklistId/tasks',(req,res)=>{
+    let taskObj={
+        'title': req.body.title,
+        '_tasklistId': req.params.tasklistId
+    }
+    Task(taskObj).save()
+    .then((taskObj)=>{res.status(201).send(taskObj)})
+    .catch((error)=>{console.log(error)
+    })
+
+})
+
+
+
+
+
+// To get all tasklists for a Task- http://localhost:3000/tasklists/:tasklistID/tasks
+app.get('/tasklists/:tasklistID/tasks',(req,res)=>{
+    Task.find({_tasklistId:req.params.tasklistID})
+    .then((taskl)=>{
+        res.status(200).send(taskl);
+        console.log("TASKS Displayed successfully check Postman")
+    })
+    .catch((error)=>{
+        console.log("ERROR:",error);
+        res.status(500);
+    })
+})
+
+//To get Specific tasks from a Task list - https://localhost:3000/tasklists/:tasklistID/tasks/:taskID
+app.get('/tasklists/:tasklistID/tasks/:taskID',(req,res)=>{
+    Task.findOne({_tasklistId:req.params.tasklistID,_id:req.params.taskID})
+    .then((taskl)=>{
+        res.status(200).send(taskl);
+        console.log("TASKS Displayed successfully check Postman")
+    })
+    .catch((error)=>{
+        console.log("ERROR:",error);
+        res.status(500);
+    })
+})
+
+
+
+
+
 
 
 app.listen(3000,function(){ 
