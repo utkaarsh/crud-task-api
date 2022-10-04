@@ -4,6 +4,8 @@ const app=express();
 const TaskSchema=require('./database/models/task');
 const TaskList = require('./database/models/taskList');
 const TaskListSchema=require('./database/models/taskList');
+var cors = require('cors');
+
 
 const mongoose=require('./database/mongoose');
 //example of middleware
@@ -17,27 +19,29 @@ Frontend-http://localhost:4200
 
 //3rd party library app.use(cors()); --this would have directly given access to all possible requests out there
 
-app.use(
-    (req,res,next)=>{
-        //Website you wish to allow
-        res.setHeader('Access-Control-Allow-Origin','http://localhost:4200');
+// app.use(
+//     (req,res,next)=>{
+//         //Website you wish to allow
+//         res.setHeader('Access-Control-Allow-Origin','http://localhost:4200');
 
-        //Request methods you wish to allow
-        res.setHeader('Access-Control-Allow-Methods','GET,POST,ACTION,PUT,PATCH,DELETE');
+//         //Request methods you wish to allow
+//         res.setHeader('Access-Control-Allow-Methods','GET,POST,ACTION,PUT,PATCH,DELETE');
 
-        //Request Headers you wish to allow
-        res.setHeader('Access-Control-Allow-Headers','X-Requested-With,content-type,Accept');
+//         //Request Headers you wish to allow
+//         res.header('Access-Control-Allow-Headers','Content-Type');
 
-        //Set to true if you need the website to include cookies in the requests sent
-        //to the API 
+//         //Set to true if you need the website to include cookies in the requests sent
+//         //to the API 
 
-        // res.setHeader('Access-Control-Allow-Credentials',true); 
+//         // res.setHeader('Access-Control-Allow-Credentials',true); 
 
-        //pass the next layer of the middleware
-        next();
+//         //pass the next layer of the middleware
+//         next();
 
-    }
-)
+//     }
+// )
+app.use(cors());
+
 
 //Get List
 app.get('/tasklists',(req,res)=>{
@@ -134,7 +138,7 @@ app.delete('/tasklists/:tasklistID/tasks/:taskID',(req,res)=>{
     Task.findByIdAndDelete({_id:req.params.taskID})
     .then((taskl)=>{
         res.status(200).send(taskl);
-        console.log("The Task has been deleted!")
+        console.log("The Task has been deleted!",ID)
     })
     .catch((error)=>{
         console.log("ERROR:",error);
